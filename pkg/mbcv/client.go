@@ -26,7 +26,7 @@ type Client struct {
 }
 
 func (c *Client) Authenticate() (string, error) {
-	fmt.Printf("Please open the following link and copy the URL you are redirected to:\n%v\n", c.makeOAuthURL())
+	fmt.Printf("Please open the following link and copy the URL you are redirected to:\n\n%v\n\n\n", c.makeOAuthURL())
 	var urlString string
 	err := survey.AskOne(&survey.Input{
 		Message: "Please paste the callback URL that you were redirected to",
