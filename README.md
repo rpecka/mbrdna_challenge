@@ -6,7 +6,7 @@ A chatbot server and client for remotely accessing a Mercedes-Benz connected veh
 
 # Running
 ```
-git clone https://github.com/rpecka/mbrdna_challenge.git
+git clone git@github.com:rpecka/mbrdna_challenge.git
 cd mbrdna_challenge
 ```
 Run the server:
