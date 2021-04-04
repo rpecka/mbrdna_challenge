@@ -14,10 +14,7 @@ func main() {
 		ClientKey:         "sCIOCsrBADASfXWEY_6-xiI4qm4VJhNf77LDH4mPqzCm4w3QZacJo4-mHZhNYGOTdbXadttX7TklNl2NGs9WhQ==",
 	}
 
-	mbcvClient := &mbcv.ServerClient{
-		ClientID:     "64ce6056-79b9-40ab-80e0-71d3c805c575",
-		ClientSecret: "kjuqQzTqgqpnYgmEblpnbEuyfwErKGZqDxKkQjrCPdXlQggvnkgFYKXNRwtaHPLy",
-	}
+	mbcvClient := &mbcv.AuthenticatedClient{}
 
 	mux := http.NewServeMux()
 

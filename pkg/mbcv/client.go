@@ -23,33 +23,31 @@ type Client struct {
 	ClientSecret string
 }
 
-func (c *Client) Authenticate() error {
+func (c *Client) Authenticate() (string, error) {
 	fmt.Printf("Please open the following link and copy the URL you are redirected to:\n%v\n", c.makeOAuthURL())
 	var urlString string
 	err := survey.AskOne(&survey.Input{
 		Message: "Please paste the callback URL that you were redirected to",
 	}, &urlString, survey.WithValidator(survey.Required))
 	if err != nil {
-		return err
+		return "", err
 	}
 	redirectURL, err := url.Parse(urlString)
 	if err != nil {
-		return fmt.Errorf("there was a problem parsing the redirect url: %v", err)
+		return "", fmt.Errorf("there was a problem parsing the redirect url: %v", err)
 	}
 	code := redirectURL.Query().Get("code")
 	// TODO: check this to prevent XSF
 	//redirectURL.Query().Get("state")
 	if code == "" {
-		return fmt.Errorf("redirect url did not contain a `code` query parameter")
+		return "", fmt.Errorf("redirect url did not contain a `code` query parameter")
 	}
 
 	tokenResponse, err := c.requestAuthToken(code)
 	if err != nil {
-		return fmt.Errorf("failed to get auth token from code: %v", err)
+		return "", fmt.Errorf("failed to get auth token from code: %v", err)
 	}
-
-	c.AuthenticatedClient.authToken = tokenResponse.AccessToken
-	return nil
+	return tokenResponse.AccessToken, nil
 }
 
 func (c Client) makeOAuthURL() string {

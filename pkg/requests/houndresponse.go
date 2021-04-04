@@ -28,9 +28,21 @@ func ParseHoundResponse(serverResponseJSON string) (*HoundResponse, error) {
 	}
 	firstResult := result["AllResults"].([]interface{})[0].(map[string]interface{})
 	writtenResponse := firstResult["WrittenResponseLong"].(string)
-	intent := firstResult["Result"].(map[string]interface{})["intent"].(string)
+	intent := extractIntent(firstResult)
 	return &HoundResponse{
 		WrittenResponse: writtenResponse,
 		Intent:          intent,
 	}, nil
+}
+
+func extractIntent(result map[string]interface{}) string {
+	r, ok := result["Result"].(map[string]interface{})
+	if !ok {
+		return ""
+	}
+	intent, ok := r["intent"].(string)
+	if !ok {
+		return ""
+	}
+	return intent
 }

@@ -14,9 +14,9 @@ import (
 	"strings"
 )
 
-func CreateRoutes(mux *http.ServeMux, houndClient *houndify.Client, mbcvClient *mbcv.ServerClient) {
+func CreateRoutes(mux *http.ServeMux, houndClient *houndify.Client, mbcvClient *mbcv.AuthenticatedClient) {
 	mux.HandleFunc("/chat", func(writer http.ResponseWriter, request *http.Request) {
-		response := requests.ChatRespnse{"There was a problem while processing your request"}
+		response := requests.ChatRespnse{Text: "There was a problem while processing your request"}
 		defer func() {
 			response, err := json.Marshal(response)
 			if err != nil {
@@ -61,7 +61,9 @@ func CreateRoutes(mux *http.ServeMux, houndClient *houndify.Client, mbcvClient *
 			return
 		}
 
-		err = runCommandForIntent(houndResponse.Intent, mbcvClient, ctx)
+		if houndResponse.Intent != "" {
+			err = runCommandForIntent(houndResponse.Intent, mbcvClient, ctx)
+		}
 		if err != nil {
 			log.Print(fmt.Errorf("failed to execute command for intent: %v", err))
 			response = requests.ChatRespnse{Text: "There was a problem executing your request on your vehicle"}
@@ -81,7 +83,7 @@ func extractHeaders(request *http.Request) (string, string, error) {
 	return authToken, vehicleID, nil
 }
 
-func runCommandForIntent(intent string, mbcvClient *mbcv.ServerClient, ctx context.Context) error {
+func runCommandForIntent(intent string, mbcvClient *mbcv.AuthenticatedClient, ctx context.Context) error {
 	components := strings.Split(intent, ".")
 	if len(components) < 2 {
 		return fmt.Errorf("too few components in %v", intent)

@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -21,26 +21,51 @@ const (
 )
 
 type AuthenticatedClient struct {
-	authToken string
 	httpClient http.Client
 }
 
-func (c *AuthenticatedClient) SendDoorCommand(command, vehicleID string) (*requests.CommandResponse, error) {
+func (c AuthenticatedClient) GetVehicles(token string) (*requests.GetVehiclesResponse, error) {
+	req, err := c.makeRequest(http.MethodGet, nil, token)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.New("failed to read body: " + err.Error())
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error response: %v", string(body))
+	}
+
+	var vehiclesResponse requests.GetVehiclesResponse
+	err = json.Unmarshal(body, &vehiclesResponse)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse get vehicles response: %v", err)
+	}
+	return &vehiclesResponse, nil
+}
+
+func (c AuthenticatedClient) SendDoorCommand(command, vehicleID string, token string) (*requests.CommandResponse, error) {
 	commandReq := requests.CommandRequest{Command: command}
 	body, err := json.Marshal(commandReq)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Print(string(body))
-
-	req, err := http.NewRequest(http.MethodPost, apiURL + vehicleID + "/doors", bytes.NewBuffer(body))
+	req, err := c.makeRequestURI(http.MethodPost, vehicleID + "/doors", bytes.NewBuffer(body), token)
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("authorization", "Bearer " + c.authToken)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -63,4 +88,17 @@ func (c *AuthenticatedClient) SendDoorCommand(command, vehicleID string) (*reque
 		return nil, fmt.Errorf("failed to parse command response: %v", string(body))
 	}
 	return &cmdResponse, nil
+}
+
+func (c AuthenticatedClient) makeRequestURI(method string, uri string, body io.Reader, token string) (*http.Request, error) {
+	req, err := http.NewRequest(method, apiURL + uri, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("authorization", "Bearer " + token)
+	return req, err
+}
+
+func (c AuthenticatedClient) makeRequest(method string, body io.Reader, token string) (*http.Request, error) {
+	return c.makeRequestURI(method, "", body, token)
 }
