@@ -3,7 +3,7 @@ package client
 import (
 	"fmt"
 
-	"github.com/AlecAivazis/survey"
+	"github.com/AlecAivazis/survey/v2"
 )
 
 const (

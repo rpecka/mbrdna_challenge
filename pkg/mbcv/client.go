@@ -8,7 +8,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/AlecAivazis/survey"
+	"github.com/AlecAivazis/survey/v2"
+
 	"github.com/rpecka/mbrdna_challenge/pkg/mbcv/requests"
 )
 
