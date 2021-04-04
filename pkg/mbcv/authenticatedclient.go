@@ -1,7 +1,6 @@
 package mbcv
 
 import (
-	"./requests"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -9,6 +8,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/rpecka/mbrdna_challenge/pkg/mbcv/requests"
 )
 
 const (

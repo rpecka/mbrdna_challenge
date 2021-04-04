@@ -1,12 +1,13 @@
 package client
 
 import (
-	"../requests"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/rpecka/mbrdna_challenge/pkg/requests"
 )
 
 type Client struct {

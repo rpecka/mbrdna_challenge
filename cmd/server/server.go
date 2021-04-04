@@ -1,11 +1,13 @@
 package main
 
 import (
-	"../../pkg/mbcv"
-	"../../pkg/server"
-	"github.com/soundhound/houndify-sdk-go"
 	"log"
 	"net/http"
+
+	"github.com/soundhound/houndify-sdk-go"
+
+	"github.com/rpecka/mbrdna_challenge/pkg/mbcv"
+	"github.com/rpecka/mbrdna_challenge/pkg/server"
 )
 
 func main() {

@@ -1,17 +1,19 @@
 package server
 
 import (
-	"../mbcv"
-	mbcvr "../mbcv/requests"
-	"../requests"
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/soundhound/houndify-sdk-go"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/pkg/errors"
+	"github.com/soundhound/houndify-sdk-go"
+
+	"github.com/rpecka/mbrdna_challenge/pkg/mbcv"
+	mbcvr "github.com/rpecka/mbrdna_challenge/pkg/mbcv/requests"
+	"github.com/rpecka/mbrdna_challenge/pkg/requests"
 )
 
 func CreateRoutes(mux *http.ServeMux, houndClient *houndify.Client, mbcvClient *mbcv.AuthenticatedClient, handler IntentHandler) {

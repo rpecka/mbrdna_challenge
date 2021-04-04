@@ -1,9 +1,10 @@
 package main
 
 import (
-	"../../pkg/client"
-	"../../pkg/mbcv"
 	"fmt"
+
+	"github.com/rpecka/mbrdna_challenge/pkg/client"
+	"github.com/rpecka/mbrdna_challenge/pkg/mbcv"
 )
 
 func main() {

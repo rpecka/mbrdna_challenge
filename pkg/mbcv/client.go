@@ -1,14 +1,15 @@
 package mbcv
 
 import (
-	"./requests"
 	"encoding/json"
 	"fmt"
-	"github.com/AlecAivazis/survey"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/AlecAivazis/survey"
+	"github.com/rpecka/mbrdna_challenge/pkg/mbcv/requests"
 )
 
 const (
