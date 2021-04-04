@@ -2,6 +2,7 @@ package server
 
 import (
 	"../mbcv"
+	mbcvr "../mbcv/requests"
 	"../requests"
 	"context"
 	"encoding/json"
@@ -11,10 +12,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 )
 
-func CreateRoutes(mux *http.ServeMux, houndClient *houndify.Client, mbcvClient *mbcv.AuthenticatedClient) {
+func CreateRoutes(mux *http.ServeMux, houndClient *houndify.Client, mbcvClient *mbcv.AuthenticatedClient, handler IntentHandler) {
 	mux.HandleFunc("/chat", func(writer http.ResponseWriter, request *http.Request) {
 		response := requests.ChatRespnse{Text: "There was a problem while processing your request"}
 		defer func() {
@@ -61,16 +61,22 @@ func CreateRoutes(mux *http.ServeMux, houndClient *houndify.Client, mbcvClient *
 			return
 		}
 
-		if houndResponse.Intent != "" {
-			err = runCommandForIntent(houndResponse.Intent, mbcvClient, ctx)
+		if houndResponse.Intent == "" {
+			response = requests.ChatRespnse{Text: houndResponse.WrittenResponse}
+			return
 		}
+
+		commandResponse, err := runCommandForIntent(houndResponse.Intent, handler, mbcvClient, ctx)
 		if err != nil {
 			log.Print(fmt.Errorf("failed to execute command for intent: %v", err))
 			response = requests.ChatRespnse{Text: "There was a problem executing your request on your vehicle"}
 			return
 		}
-
-		response = requests.ChatRespnse{Text: houndResponse.WrittenResponse}
+		if commandResponse != "" {
+			response = requests.ChatRespnse{Text: commandResponse}
+		} else {
+			response = requests.ChatRespnse{Text: houndResponse.WrittenResponse}
+		}
 	})
 }
 
@@ -83,22 +89,27 @@ func extractHeaders(request *http.Request) (string, string, error) {
 	return authToken, vehicleID, nil
 }
 
-func runCommandForIntent(intent string, mbcvClient *mbcv.AuthenticatedClient, ctx context.Context) error {
-	components := strings.Split(intent, ".")
-	if len(components) < 2 {
-		return fmt.Errorf("too few components in %v", intent)
+func runCommandForIntent(intent string, handler IntentHandler, mbcvClient *mbcv.AuthenticatedClient, ctx context.Context) (string, error) {
+	command := handler.commandForIntent(intent)
+	if command == nil {
+		return "", fmt.Errorf("could not determine command for intent: %v", intent)
 	}
-	if len(components) > 2 {
-		return fmt.Errorf("too many components in %v", intent)
+	switch *command {
+	case unlockCar:
+		_, err := mbcvClient.SendDoorCommand(mbcvr.UNLOCK, vehicleID(ctx), authToken(ctx))
+		return "", err
+	case lockCar:
+		_, err := mbcvClient.SendDoorCommand(mbcvr.LOCK, vehicleID(ctx), authToken(ctx))
+		return "", err
+	case findCar:
+		location, err := mbcvClient.GetLocation(vehicleID(ctx), authToken(ctx))
+		if err != nil {
+			return "", err
+		}
+		return fmt.Sprintf("Located your vehicle at %v,%v", location.Longitude.Value, location.Latitude.Value), nil
+	default:
+		return "", fmt.Errorf("unable to handle command: %v", command)
 	}
-	if components[0] != "CAR" {
-		return fmt.Errorf("unrecognized intent domain: %v", components[0])
-	}
-	_, err := mbcvClient.SendDoorCommand(strings.ToUpper(components[1]), vehicleID(ctx), authToken(ctx))
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 

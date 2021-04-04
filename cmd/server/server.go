@@ -18,7 +18,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	server.CreateRoutes(mux, houndClient, mbcvClient)
+	handler := server.BasicIntentHandler{}
+
+	server.CreateRoutes(mux, houndClient, mbcvClient, handler)
 
 	s := &http.Server{
 		Addr: ":80",

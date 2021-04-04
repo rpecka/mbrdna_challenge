@@ -12,11 +12,6 @@ import (
 )
 
 const (
-	Lock = "LOCK"
-	Unlock = "UNLOCK"
-)
-
-const (
 	apiURL = "https://api.mercedes-benz.com/experimental/connectedvehicle/v2/vehicles/"
 )
 
@@ -53,8 +48,36 @@ func (c AuthenticatedClient) GetVehicles(token string) (*requests.GetVehiclesRes
 	return &vehiclesResponse, nil
 }
 
-func (c AuthenticatedClient) SendDoorCommand(command, vehicleID string, token string) (*requests.CommandResponse, error) {
-	commandReq := requests.CommandRequest{Command: command}
+func (c AuthenticatedClient) GetLocation(vehicleID, token string) (*requests.GetLocationResponse, error) {
+	req, err := c.makeRequestURI(http.MethodGet, vehicleID + "/location", nil, token)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.New("failed to read body: " + err.Error())
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error response: %v", string(body))
+	}
+
+	var locationResponse requests.GetLocationResponse
+	err =json.Unmarshal(body, &locationResponse)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse get location response: %v", err)
+	}
+	return &locationResponse, nil
+}
+
+func (c AuthenticatedClient) SendDoorCommand(command requests.DoorCommand, vehicleID string, token string) (*requests.CommandResponse, error) {
+	commandReq := requests.CommandRequest{Command: string(command)}
 	body, err := json.Marshal(commandReq)
 	if err != nil {
 		return nil, err
