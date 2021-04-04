@@ -16,27 +16,36 @@ import (
 
 func CreateRoutes(mux *http.ServeMux, houndClient *houndify.Client, mbcvClient *mbcv.ServerClient) {
 	mux.HandleFunc("/chat", func(writer http.ResponseWriter, request *http.Request) {
+		response := requests.ChatRespnse{"There was a problem while processing your request"}
+		defer func() {
+			response, err := json.Marshal(response)
+			if err != nil {
+				log.Print(fmt.Errorf("failed to serialize resonse: %v", err))
+				return
+			}
+			writer.Write(response)
+		}()
 		authToken, vehicleID, err := extractHeaders(request)
 		if err != nil {
-			writeError("missing auth token or vehicle ID", http.StatusBadRequest, writer)
+			log.Print("missing auth token or vehicle ID")
 			return
 		}
 		ctx := makeContext(request.Context(), authToken, vehicleID)
 		if request.Method != http.MethodPost {
-			writeError("only POST is supported", http.StatusBadRequest, writer)
+			log.Print("attempt to do something other than POST to /chat")
 			return
 		}
 
 		body, err := ioutil.ReadAll(request.Body)
 		if err != nil {
-			writeError("failed to read request data", http.StatusBadRequest, writer)
+			log.Print(fmt.Errorf("failed to read request data: %v", err))
 			return
 		}
 
 		chatRequest := requests.ChatRequest{}
 		err = json.Unmarshal(body, &chatRequest)
 		if err != nil {
-			writeError("request could not be parsed", http.StatusBadRequest, writer)
+			log.Print(fmt.Errorf("could not parse request json: %v", err))
 			return
 		}
 		houndResponseString, err := houndClient.TextSearch(houndify.TextRequest{
@@ -44,24 +53,22 @@ func CreateRoutes(mux *http.ServeMux, houndClient *houndify.Client, mbcvClient *
 		})
 		if err != nil {
 			log.Print(fmt.Errorf("could not execute text search: %v", err))
-			writeError("failed to query hound server", http.StatusBadGateway, writer)
 			return
 		}
 		houndResponse, err := requests.ParseHoundResponse(houndResponseString)
 		if err != nil {
 			log.Print(fmt.Errorf("could not parse response from Hound: %v", err))
-			writeError("failed to parse response from hound server", http.StatusBadGateway, writer)
 			return
 		}
 
 		err = runCommandForIntent(houndResponse.Intent, mbcvClient, ctx)
 		if err != nil {
 			log.Print(fmt.Errorf("failed to execute command for intent: %v", err))
-			writeError("failed to execute connected vehicle command", http.StatusBadGateway, writer)
+			response = requests.ChatRespnse{Text: "There was a problem executing your request on your vehicle"}
 			return
 		}
 
-		writer.Write([]byte(houndResponse.WrittenResponse))
+		response = requests.ChatRespnse{Text: houndResponse.WrittenResponse}
 	})
 }
 
@@ -90,16 +97,6 @@ func runCommandForIntent(intent string, mbcvClient *mbcv.ServerClient, ctx conte
 		return err
 	}
 	return nil
-}
-
-func writeError(message string, status int, writer http.ResponseWriter) {
-	writer.WriteHeader(status)
-	response, err := json.Marshal(requests.ErrorResponse{Error: message})
-	if err != nil {
-		log.Print(fmt.Errorf("failed to serialize resonse: %v", err))
-		return
-	}
-	writer.Write(response)
 }
 
 

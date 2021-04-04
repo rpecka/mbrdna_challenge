@@ -1,6 +1,7 @@
 package mbcv
 
 import (
+	"./requests"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -19,14 +20,13 @@ const (
 	apiURL = "https://api.mercedes-benz.com/experimental/connectedvehicle/v2/vehicles/"
 )
 
-type ServerClient struct {
-	ClientID string
-	ClientSecret string
-	httpClient *http.Client
+type AuthenticatedClient struct {
+	authToken string
+	httpClient http.Client
 }
 
-func (c *ServerClient) SendDoorCommand(command, vehicleID, mbToken string) (*CommandResponse, error) {
-	commandReq := commandRequest{Command: command}
+func (c *AuthenticatedClient) SendDoorCommand(command, vehicleID string) (*requests.CommandResponse, error) {
+	commandReq := requests.CommandRequest{Command: command}
 	body, err := json.Marshal(commandReq)
 	if err != nil {
 		return nil, err
@@ -40,11 +40,7 @@ func (c *ServerClient) SendDoorCommand(command, vehicleID, mbToken string) (*Com
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("authorization", "Bearer " + mbToken)
-
-	if c.httpClient == nil {
-		c.httpClient = &http.Client{}
-	}
+	req.Header.Set("authorization", "Bearer " + c.authToken)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -61,7 +57,7 @@ func (c *ServerClient) SendDoorCommand(command, vehicleID, mbToken string) (*Com
 		return nil, fmt.Errorf("error response: %v", string(body))
 	}
 
-	cmdResponse := CommandResponse{}
+	cmdResponse := requests.CommandResponse{}
 	err = json.Unmarshal(body, &cmdResponse)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse command response: %v", string(body))

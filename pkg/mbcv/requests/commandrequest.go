@@ -1,6 +1,6 @@
-package mbcv
+package requests
 
-type commandRequest struct {
+type CommandRequest struct {
 	Command string `json:"command"`
 }
 
