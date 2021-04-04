@@ -34,7 +34,7 @@ func main() {
 	fmt.Printf("Using first found vehicle: %v\n", (*vehicles)[0].ID)
 
 	c := &client.Client{
-		ServerURL:    "http://localhost/",
+		ServerURL: "http://localhost/",
 		AuthToken: authToken,
 	}
 

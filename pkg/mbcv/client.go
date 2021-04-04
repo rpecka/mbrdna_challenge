@@ -14,14 +14,14 @@ import (
 )
 
 const (
-	oAuthURL = "https://id.mercedes-benz.com/as/"
+	oAuthURL            = "https://id.mercedes-benz.com/as/"
 	oAuthRedirectFormat = oAuthURL + "authorization.oauth2?response_type=code&client_id=%v&redirect_uri=&scope=mb:vehicle:status:general%%20mb:user:pool:reader%%20offline_access&state=%v"
-	oAuthTokenURL = oAuthURL + "token.oauth2"
+	oAuthTokenURL       = oAuthURL + "token.oauth2"
 )
 
 type Client struct {
 	AuthenticatedClient
-	ClientID string
+	ClientID     string
 	ClientSecret string
 }
 
@@ -59,8 +59,8 @@ func (c Client) makeOAuthURL() string {
 
 func (c Client) requestAuthToken(authCode string) (*requests.AuthTokenResponse, error) {
 	data := url.Values{
-		"grant_type": {"authorization_code"},
-		"code": {authCode},
+		"grant_type":   {"authorization_code"},
+		"code":         {authCode},
 		"redirect_uri": {""},
 	}
 

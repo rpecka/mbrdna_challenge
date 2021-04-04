@@ -50,7 +50,7 @@ func (c AuthenticatedClient) GetVehicles(token string) (*requests.GetVehiclesRes
 }
 
 func (c AuthenticatedClient) GetLocation(vehicleID, token string) (*requests.GetLocationResponse, error) {
-	req, err := c.makeRequestURI(http.MethodGet, vehicleID + "/location", nil, token)
+	req, err := c.makeRequestURI(http.MethodGet, vehicleID+"/location", nil, token)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (c AuthenticatedClient) GetLocation(vehicleID, token string) (*requests.Get
 	}
 
 	var locationResponse requests.GetLocationResponse
-	err =json.Unmarshal(body, &locationResponse)
+	err = json.Unmarshal(body, &locationResponse)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse get location response: %v", err)
 	}
@@ -84,7 +84,7 @@ func (c AuthenticatedClient) SendDoorCommand(command requests.DoorCommand, vehic
 		return nil, err
 	}
 
-	req, err := c.makeRequestURI(http.MethodPost, vehicleID + "/doors", bytes.NewBuffer(body), token)
+	req, err := c.makeRequestURI(http.MethodPost, vehicleID+"/doors", bytes.NewBuffer(body), token)
 	if err != nil {
 		return nil, err
 	}
@@ -115,11 +115,11 @@ func (c AuthenticatedClient) SendDoorCommand(command requests.DoorCommand, vehic
 }
 
 func (c AuthenticatedClient) makeRequestURI(method string, uri string, body io.Reader, token string) (*http.Request, error) {
-	req, err := http.NewRequest(method, apiURL + uri, body)
+	req, err := http.NewRequest(method, apiURL+uri, body)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("authorization", "Bearer " + token)
+	req.Header.Set("authorization", "Bearer "+token)
 	return req, err
 }
 

@@ -9,7 +9,7 @@ import (
 
 type HoundResponse struct {
 	WrittenResponse string
-	Intent string
+	Intent          string
 }
 
 // Adapted from houndify.ParseWrittenResponse

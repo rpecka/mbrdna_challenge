@@ -11,10 +11,10 @@ import (
 )
 
 type Client struct {
-	ServerURL string
-	AuthToken string
+	ServerURL    string
+	AuthToken    string
 	refreshToken string
-	httpClient http.Client
+	httpClient   http.Client
 }
 
 func (c *Client) SendMessage(message, vehicleID string) (*requests.ChatRespnse, error) {
@@ -22,7 +22,7 @@ func (c *Client) SendMessage(message, vehicleID string) (*requests.ChatRespnse, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode message: %v", err)
 	}
-	req, err := http.NewRequest(http.MethodPost, c.ServerURL + "chat", bytes.NewBuffer(body))
+	req, err := http.NewRequest(http.MethodPost, c.ServerURL+"chat", bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a new request: %v", err)
 	}

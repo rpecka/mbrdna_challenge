@@ -3,7 +3,7 @@ package requests
 type DoorCommand string
 
 const (
-	LOCK = DoorCommand("LOCK")
+	LOCK   = DoorCommand("LOCK")
 	UNLOCK = DoorCommand("UNLOCK")
 )
 

@@ -4,6 +4,6 @@ type Command string
 
 const (
 	unlockCar = Command("UNLOCK")
-	lockCar = Command("LOCK")
-	findCar = Command("FIND")
+	lockCar   = Command("LOCK")
+	findCar   = Command("FIND")
 )

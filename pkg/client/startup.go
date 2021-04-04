@@ -7,7 +7,7 @@ import (
 )
 
 type startupInfo struct {
-	ClientID string
+	ClientID     string
 	ClientSecret string
 }
 
@@ -24,11 +24,11 @@ func RunStartupSurvey() (*startupInfo, error) {
 	if answerIdx == 0 {
 		fmt.Println("Using Russell's credentials...")
 		return &startupInfo{
-			ClientID: "64ce6056-79b9-40ab-80e0-71d3c805c575",
+			ClientID:     "64ce6056-79b9-40ab-80e0-71d3c805c575",
 			ClientSecret: "kjuqQzTqgqpnYgmEblpnbEuyfwErKGZqDxKkQjrCPdXlQggvnkgFYKXNRwtaHPLy",
 		}, nil
 	}
-	
+
 	var info startupInfo
 	err = survey.Ask([]*survey.Question{
 		{
@@ -36,13 +36,13 @@ func RunStartupSurvey() (*startupInfo, error) {
 			Prompt: &survey.Input{
 				Message: "Enter your MBCV client ID",
 			},
-				},
+		},
 		{
 			Name: "ClientSecret",
 			Prompt: &survey.Input{
 				Message: "Enter your MBCV client secret",
 			},
-				},
+		},
 	}, &info, survey.WithValidator(survey.Required))
 	return &info, err
 }

@@ -3,7 +3,7 @@ package requests
 type GetVehiclesResponse []Vehicle
 
 type Vehicle struct {
-	ID string `json:"id"`
+	ID           string `json:"id"`
 	LicensePlate string `json:"licenseplate"`
-	FINOrVIN string `json:"finorvin"`
+	FINOrVIN     string `json:"finorvin"`
 }

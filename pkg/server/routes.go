@@ -113,5 +113,3 @@ func runCommandForIntent(intent string, handler IntentHandler, mbcvClient *mbcv.
 		return "", fmt.Errorf("unable to handle command: %v", command)
 	}
 }
-
-
