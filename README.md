@@ -2,7 +2,7 @@
 
 A chatbot server and client for remotely accessing a Mercedes-Benz connected vehicle.
 
-![Screen Shot 2021-04-04 at 5 09 40 PM](https://user-images.githubusercontent.com/13580126/113521612-91315980-9568-11eb-8023-9b90663ed01f.png)
+![Screen Shot 2021-04-04 at 7 45 30 PM](https://user-images.githubusercontent.com/13580126/113524693-53d7c680-957e-11eb-88d1-4e1a228e37d5.png)
 
 # Running
 ```
